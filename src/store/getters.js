@@ -17,6 +17,9 @@ export default {
   payedStatusFromSocket: state => {
     return state.payedStatusFromSocket
   },
+  payedGroupedStatusFromSocket: state => {
+    return state.payedGroupedStatusFromSocket
+  },
   groupedInvoice: state => {
     return state.groupedInvoice
   }

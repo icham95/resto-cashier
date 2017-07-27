@@ -60,8 +60,24 @@ export default {
       }
     }
   },
+  [mutations.SOCKET_PAY_GROUPED_FROM_CASHIER_FEEDBACK] (state, datas) {
+    if (datas[datas.length - 1].success === true) {
+      let groupedInvoice = state.groupedInvoice
+      for (let i = 0; i < datas.length - 1; i++) {
+        for (let x = 0; x < groupedInvoice.length; x++) {
+          if (datas[i].id === groupedInvoice[x].pesanan.id) {
+            groupedInvoice[x].pesanan.status_pembayaran = 2
+          }
+        }
+      }
+      state.payedGroupedStatusFromSocket = true
+    }
+  },
   [mutations.FCHANGE_PAYED_STATUS_FROM_SOCKET] (state, status) {
     state.payedStatusFromSocket.status = status
+  },
+  [mutations.FCHANGE_PAYED_GROUPED_STATUS_FROM_SOCKET] (state, status) {
+    state.payedGroupedStatusFromSocket = status
   },
   [mutations.FADD_GROUP_INVOICES] (state, data) {
     state.groupedInvoice = data

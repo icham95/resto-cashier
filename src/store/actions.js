@@ -12,6 +12,9 @@ export default {
   },
   faddGroupInvoice (context, data) {
     context.commit(mutation.FADD_GROUP_INVOICES, data)
+  },
+  fchangePayedGroupedStatusFromSocket (context, status) {
+    context.commit(mutation.FCHANGE_PAYED_GROUPED_STATUS_FROM_SOCKET, status)
   }
 }
 

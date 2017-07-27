@@ -33,5 +33,6 @@ export default {
     meja: null,
     status: false
   },
+  payedGroupedStatusFromSocket: false,
   groupedInvoice: []
 }

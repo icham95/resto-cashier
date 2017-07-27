@@ -6,18 +6,16 @@
           <v-card-title primary-title>
             <div class="headline" style="width:100%;">Meja {{ invoice.meja.no }} || {{ invoice.meja.nama }}</div>
             <div style="width:100%;">
-              at : {{ invoice.pesanan.created_at }} <br>
-              status dapur : 
-              <label v-if="invoice.pesanan.status_dapur == 1"> waiting to take </label>
-              <label v-if="invoice.pesanan.status_dapur == 2"> On cooking </label>
-              <label v-if="invoice.pesanan.status_dapur == 3"> Ready </label>
+              at : {{ invoice.pesanan.created_at }}
               <br>
-              <div v-if="invoice.pesanan.status_pembayaran === 1">
+              status pembayaran : 
+              <div v-if="invoice.pesanan.status_pembayaran === 1" style="display:inline">
                 Belum di bayar
               </div>
-              <div v-else>
+              <div v-else style="display:inline">
                 Terbayar
               </div>
+              <br>
               waiter : {{ invoice.pesanan.user_id }}
             </div>
             <div>
@@ -81,7 +79,8 @@
     },
     computed: {
       ...mapGetters([
-        'groupedInvoice'
+        'groupedInvoice',
+        'payedGroupedStatusFromSocket'
       ]),
       totalledAll () {
         if (this.priced === '') this.priced = 0
@@ -90,7 +89,7 @@
     },
     methods: {
       ...mapActions([
-        'fchangePayedStatusFromSocket'
+        'fchangePayedGroupedStatusFromSocket'
       ]),
       total () {
         this.totalHarga = []
@@ -115,16 +114,20 @@
         return this.totalHarga
       },
       pay () {
-        let data = {
-          id: this.invoice.pesanan.id,
-          statusPembayaran: 2,
-          meja: {
-            nama: this.invoice.meja.nama,
-            no: this.invoice.meja.no
-          }
+        let data = []
+        let grouped = this.groupedInvoice
+        for (let i = 0; i < grouped.length; i++) {
+          data.push({
+            id: grouped[i].pesanan.id,
+            statusPembayaran: 2,
+            meja: {
+              nama: grouped[i].meja.nama,
+              no: grouped[i].meja.no
+            }
+          })
         }
         if (this.totalledAll >= 0) {
-          this.$socket.emit('payFromCashier', data)
+          this.$socket.emit('payGroupedFromCashier', data)
         } else {
           this.$notify({
             title: 'Pesan',
@@ -150,15 +153,14 @@
       }
     },
     watch: {
-      payedStatusFromSocket () {
-        let payed = this.payedStatusFromSocket
-        if (payed.status === true) {
+      payedGroupedStatusFromSocket () {
+        let payed = this.payedGroupedStatusFromSocket
+        if (payed === true) {
           this.$notify({
             title: 'Pesan',
-            text: `meja ${payed.meja.no} || ${payed.meja.nama} , pembayaran berhasil`
+            text: `pembayaran berhasil`
           })
-          this.fchangePayedStatusFromSocket(false)
-          this.$socket.emit('getDataOrder', this.$route.params.id)
+          this.fchangePayedGroupedStatusFromSocket(false)
         }
       },
       invoice () {
